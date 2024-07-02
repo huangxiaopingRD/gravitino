@@ -4,8 +4,7 @@
  */
 package com.datastrato.gravitino.catalog;
 
-import static com.datastrato.gravitino.Entity.SECURABLE_ENTITY_RESERVED_NAME;
-
+import com.datastrato.gravitino.MetadataObjects;
 import com.datastrato.gravitino.NameIdentifier;
 import com.datastrato.gravitino.Namespace;
 import com.datastrato.gravitino.TestColumn;
@@ -40,7 +39,7 @@ public class TestTableNormalizeDispatcher extends TestOperationDispatcher {
   private static SchemaNormalizeDispatcher schemaNormalizeDispatcher;
 
   @BeforeAll
-  public static void initialize() throws IOException {
+  public static void initialize() throws IOException, IllegalAccessException {
     TestTableOperationDispatcher.initialize();
     tableNormalizeDispatcher =
         new TableNormalizeDispatcher(TestTableOperationDispatcher.tableOperationDispatcher);
@@ -62,12 +61,11 @@ public class TestTableNormalizeDispatcher extends TestOperationDispatcher {
           TestColumn.builder().withName("colNAME2").withType(Types.StringType.get()).build()
         };
     RangePartition assignedPartition =
-        (RangePartition)
-            Partitions.range(
-                "partition_V1",
-                Literals.stringLiteral("value1"),
-                Literals.stringLiteral("value2"),
-                null);
+        Partitions.range(
+            "partition_V1",
+            Literals.stringLiteral("value1"),
+            Literals.stringLiteral("value2"),
+            null);
     Transform[] transforms =
         new Transform[] {
           Transforms.range(
@@ -123,7 +121,8 @@ public class TestTableNormalizeDispatcher extends TestOperationDispatcher {
     Map<String, String> props = ImmutableMap.of("k1", "v1", "k2", "v2");
     schemaNormalizeDispatcher.createSchema(NameIdentifier.of(tableNs.levels()), "comment", props);
 
-    NameIdentifier tableIdent1 = NameIdentifier.of(tableNs, SECURABLE_ENTITY_RESERVED_NAME);
+    NameIdentifier tableIdent1 =
+        NameIdentifier.of(tableNs, MetadataObjects.METADATA_OBJECT_RESERVED_NAME);
     Column[] columns =
         new Column[] {
           TestColumn.builder().withName("colNAME1").withType(Types.StringType.get()).build(),
@@ -148,7 +147,7 @@ public class TestTableNormalizeDispatcher extends TestOperationDispatcher {
     Column[] columns1 =
         new Column[] {
           TestColumn.builder()
-              .withName(SECURABLE_ENTITY_RESERVED_NAME)
+              .withName(MetadataObjects.METADATA_OBJECT_RESERVED_NAME)
               .withType(Types.StringType.get())
               .build()
         };
